@@ -1,0 +1,307 @@
+#include <iostream>
+#include <stack>
+#include <fstream>
+#include <vector>
+#include <cstring>
+#include <string> //so you can using string functions
+
+using namespace std; //standard namespace
+
+class myTreeNode
+{
+	public:
+		char Data;
+		myTreeNode *childA=NULL;   //A's always go in child1
+		myTreeNode *childT=NULL;   //T's always go in child2
+		myTreeNode *childC=NULL;   //c's always go in child3
+		myTreeNode *childG=NULL;   //G's always go in child4
+};
+
+
+bool get_words_from_the_file(char * my_file_name, vector<string> &vector_of_words);
+bool get_the_reads_from_file(char * my_file_name, vector<string> &reads);
+bool write_out_the_vector_to_screen(vector<string> my_vector);
+bool write_out_the_vector_to_file(vector<string> my_vector, char * my_file_name);
+void addword (string word, myTreeNode *tempNode); //added both addword and searchword so the functions would be read
+bool searchword (string word, myTreeNode *tempNode);
+
+
+int main() //main class
+{
+	ofstream x; //writing out to x
+	x.open ("myResults.txt"); //x will open into myResults.txt
+
+    vector<string> words_in_genome;
+    char * genome_file_name="my_genome.txt";
+    	myTreeNode *root= new myTreeNode;
+    	myTreeNode *tempNode= new myTreeNode;
+    if(!get_words_from_the_file(genome_file_name,words_in_genome))
+        return 1;
+
+    //1. Create a tree based on myTreeNode --> transforming the vector of words into the tree
+    //2. Read in file reads using function get_the_reads_from_file
+    vector<string> reads_to_be_tested;
+    char * reads_file_name="6.reads.txt";                 //make certain to place this file in the correct folder. Do not change path.
+    if(!get_the_reads_from_file(reads_file_name,reads_to_be_tested))
+        return 1;
+    for (int i=0;i<words_in_genome.size(); i++){ //for loop to implement the addword function
+    	tempNode=root;
+    	addword (words_in_genome.at(i),tempNode);
+
+    }
+    bool is_in_genome;
+    for (int i=0; i<reads_to_be_tested.size (); i++){ //for loop to implement the searchword function
+    	tempNode=root;
+    	is_in_genome=searchword(reads_to_be_tested.at (i), tempNode);
+    	if (is_in_genome){ //if it is in the genome it will write out the elements to be tested
+    		x<<reads_to_be_tested [i] << ": Yes :  "; //yes if they get killed
+    		cout<<reads_to_be_tested [i] << ": Yes : ";
+
+
+    	}
+    	else {
+    		x<<reads_to_be_tested [i] << ": No  :  "; //no if they are not killed
+    		cout<<reads_to_be_tested [i] << ": No : ";
+    	}
+    }
+    x.close(); //closes the file
+
+
+    //3. for each read, map it through the tree. If it follows a path in the tree, this read belongs to this genome.
+    //Write out a file named "myResults.txt".
+    //For each read, list its sequence and either "Yes" or "No".
+    //This will indicate if it does or doesn't map to the genome.
+
+    /** these function calls are here so that you can check that you are reading and writing correctly.
+    REMOVE once you have tested **/
+       cout<<"words"<<endl;
+        write_out_the_vector_to_screen(words_in_genome);
+        write_out_the_vector_to_file(reads_to_be_tested, "my_results.txt");
+        cout << "reads" << endl;
+        write_out_the_vector_to_screen(reads_to_be_tested);
+
+        }
+
+/*******************************************************************************
+This function takes the genome file's name
+that it will read in. It will then read all of the overlapping
+words of size 10 that are present in the file.
+Each word it reads will then be stored in a vector.
+The vector is passed to this function as a parameter -- by reference.
+Doing so will allow the calling function has access to the vector of words.
+*******************************************************************************/
+bool get_words_from_the_file(char * my_file_name, vector<string> &vector_of_words)
+{
+    int i,j;
+    int len=0;
+    ifstream in;
+    in.open(my_file_name);
+    if(!in.is_open())
+    {
+        cout << "I could not find " << my_file_name << endl;
+        cout << "Check the location.\n";
+        return false;
+    }
+
+    char * my_word=new char [11];                              //this is a default, we'll be looking at words of size 10
+    while(in.peek()!=EOF) {in>>my_word[0]; len++;}             //gets the length of the sequence
+    in.clear(); in.close(); in.open(my_file_name);             //have to close and reopen file to reset filestream to beginning of file
+
+    for(i=0; i<10; i++)
+    {
+        in>> my_word[i];
+        if(my_word[i]<97) my_word[i]+=32;     //makes it lowercase
+    }
+    my_word[10]='\0';
+    vector_of_words.push_back(my_word);
+
+    for(i=1; i<(len-10-1); i++)   //read until the end of the file
+    {
+        //shift
+        for(j=0; j<9; j++) my_word[j]=my_word[j+1];
+        in>> my_word[9];
+        if(my_word[9]<97) my_word[9]+=32;     //makes it lowercase
+        my_word[10]='\0';
+        cout << i << "\t" << my_word << endl; cout.flush();
+        vector_of_words.push_back(my_word);
+    }
+    in.clear(); in.close();
+
+    return true;
+}
+
+/*******************************************************************************
+This function takes the reads file name to read and reads each individual word
+in the file and stores each word in a vector.
+The vector is passed to this function as a parameter -- by reference such
+that the calling function has access to the vector of words.
+*******************************************************************************/
+bool get_the_reads_from_file(char * my_file_name, vector<string> &reads)
+{
+    int i;
+    ifstream in;
+    in.open(my_file_name);
+    if(!in.is_open())
+    {
+        cout << "The read file " << my_file_name << " could not be opened.\nCheck the location.\n";
+        return false;
+    }
+
+    char * word=new char [30];                              //this is a default, we'll be looking at words of size 10
+
+    while(in.peek()!=EOF)
+    {
+        in.getline(word,30,'\n');
+        for(i=0; i<10; i++) {if(word[i]<97) word[i]+=32;}     //makes it lowercase
+        reads.push_back(word);
+    }
+    in.clear(); in.close();
+    delete word;
+    return true;
+}
+
+/*******************************************************************************
+This function writes out the vector of words to the screen. Written here to help
+you with debugging.
+*******************************************************************************/
+bool write_out_the_vector_to_screen(vector<string> my_vector)
+{
+    int i;
+    for(i=0; i<my_vector.size(); i++)
+        cout << my_vector[i];
+			cout<< endl;
+    return true;
+}
+
+/*******************************************************************************
+This function writes out the vector of words to file.
+*******************************************************************************/
+bool write_out_the_vector_to_file(vector<string> my_vector, char * my_file_name)
+{
+    ofstream out;
+    out.open(my_file_name);
+    int i;
+    for(i=0; i<my_vector.size(); i++)
+        out << my_vector[i];
+			out<< endl;
+    out.clear();
+    out.close();
+    return true;
+}
+void addword (string word, myTreeNode *tempNode) {
+
+  for (int i=0; i<word.length (); i++){ //for loop that will iterate through the text file
+   		if (word[i]=='a'){ //if it reads 'a'
+   			if (tempNode ->childA !=NULL){ //if child A is not null
+   				tempNode=tempNode->childA; //temp will go to childA
+   			}
+   			else {
+   				myTreeNode *newNode= new myTreeNode();
+   				newNode-> Data= 'a'; //the Data of the node wil be 'a'
+   				tempNode ->childA =newNode; //temp of child A wil equal newNode
+   				tempNode= tempNode->childA;//it is adding the letter to the .txt file once it is read
+   			}
+   		}
+   		else if (word[i]=='t'){ //goes through the same process if it runs into a 't'
+   			if (tempNode ->childT !=NULL){
+   				tempNode=tempNode->childT;
+   			}
+   			else {
+   				myTreeNode *newNode= new myTreeNode();
+   				newNode-> Data= 't';
+   				tempNode ->childT =newNode;
+   				tempNode= tempNode->childT;
+   			}
+   		}
+   		else if (word[i]=='c'){ //same process if it encounters 'c'
+   			if (tempNode ->childC !=NULL){
+   				tempNode=tempNode->childC;
+   			}
+   			else {
+   				myTreeNode *newNode= new myTreeNode();
+   				newNode-> Data= 'c';
+   				tempNode ->childC =newNode;
+   				tempNode= tempNode->childC;
+   			}
+   		}
+   		else if (word[i]=='g'){ //goes through same process if it encounters 'g'
+   			if (tempNode ->childG !=NULL){
+   				tempNode=tempNode->childG;
+   			}
+   			else {
+   				myTreeNode *newNode= new myTreeNode();
+   				newNode-> Data= 'g';
+   				tempNode ->childG =newNode;
+   				tempNode= tempNode->childG;
+   			}
+   		}
+   	}
+   }
+
+bool searchword (string word, myTreeNode *tempNode) { //will search through the .txt file for given letters
+	int count=0;
+	for (int i = 0; i<word.length (); i++){ //going through the tree
+		if (word[i]=='a'){ //if the element is 'a'
+			if (tempNode ->childA !=NULL){ //if ChildA is not null
+				tempNode=tempNode->childA; //temp is equal to temp's childA
+			}
+
+			else if ( tempNode -> childA == NULL) {
+				if(count <= 3) {
+					tempNode=tempNode ->childA;
+					count++;
+				}
+				else{
+					return false;
+				}
+			}
+		}
+		//   				return false; //else it will return false
+
+
+		if (word[i]=='t'){ //goes through same if statement for all letters t,c,g
+			if (tempNode ->childT !=NULL){
+				tempNode=tempNode->childT;
+			}
+//			else if ( tempNode -> childT == NULL) {
+//							if(count <= 3) {
+//							tempNode=tempNode ->childT;
+//							count++;
+//						}
+//							else{
+//								return false;
+//							}
+						}
+
+		if (word[i]=='c'){
+			if (tempNode ->childC !=NULL){
+				tempNode=tempNode->childC;
+			}
+//			else if ( tempNode -> childC == NULL) {
+//							if(count <= 3) {
+//								tempNode=tempNode ->childC;
+//								count++;
+//						}
+							else{
+								return false;
+							}
+						}
+
+		if (word[i]=='g'){
+			if (tempNode ->childG !=NULL){
+				tempNode=tempNode->childG;
+			}
+//			else if ( tempNode -> childG == NULL) {
+//							if(count <= 3) {
+//								tempNode=tempNode ->childG;
+//								count++;
+//							}
+							else{
+								return false;
+							}
+						}
+
+
+	return true; //will return true if it does not return false
+}
+}
