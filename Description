@@ -1,0 +1,62 @@
+
+SIDE NOTE: I just saw that we have other requirements for the seven points in our code besides like, that it runs... 
+And I mean she like, edited our stuff and everything, but I'm just the world's biggest worry wart, so if you could copy and 
+paste in the updated code to just go over it one more time, that would make me a very happy lady.
+
+
+3pts: efficiency. Is your code neat and efficient? This means both in terms of memory usage as
+well as run-time. Do you have nine loops when you only need one, etc.?
+• 1pt: design. Does your code take advantage of the benefits of object oriented programming?
+Does it promote code reuse? Are problems properly partitioned into sub-problems? For some
+projects this will be much more important than for others. Here the key challenge is design. Is
+the program designed well?
+
+
+1.
+This code will take fragments of strings of nucleotides from one genome, likely some sort of patient or specimen, and then
+compare them to the information that we have about another genome, possibly the genome of some sort of virus. In the case of the patient
+DNA and virus, we would be able to determine what sort of virus the patient had been infected with, or if they are actually infected 
+at all. The fragments used as a basis for comparison against the viral genome are selected in fragments 30 nucleotides long, and 
+are one-by-one compared against the sample genome to look for matches.We allow for the fragment to be declared as matching for
+up to 3 mismatches/differences(10% error) in the fragment being compared, which will allow for high quality matching while still 
+accounting for random errors that may occur due to innaccuracy in DNA sequency.
+
+2.
+Data structures used and why we picked them for the implementation:
+*******Trees--What type of tree are we using? Binary?
+Arrays:   We used char Arrays in several instances in order to store the fragments that we were looking at individual slots, so that we would
+more easily be able to compare the nucleotides one at a time. 
+Vector:  We used vectors in order to store the writeouts from the genome that we were testing. Vectors are ideal in this case, because 
+they allow for variability in the size of the genomes, which is necessary, as it would require unnecessary work to go through and count 
+the number of nucleotides per genome being read, and re-hard code that number in for the size of the array which we would store these
+nucleotide sequences in each time we wanted to compare one genome against another.
+
+3.
+Instruction on how to use the code and test case
+
+**To use the code, you'll need a file named " 6.reads.txt." that holds the genome that holds the sequences which you would like to compare
+other genomic data against. Then you'll need a text file called "my_genome" which is the other genomic data. Upload both of these two 
+files so that the program may read them in, and it should read through and tell you what portions match!** REVIEW
+
+Test Case: We took a set of identical sequences and compared them against each other, which should have cause the program to have
+written out to the console and the file "MyResults.txt" the content of these two files. If not, then we knew that there was
+an issue with how the code was being written out, or with how the tree was being set up and stepped through or with how it qualified
+and dealt with mismatches. Additionally, we would place statements to write out to the console randomly throughout the code once we found
+that there was an issue. This was done so as to determine where the error was occuring and to give us a better idea of what the error was.
+
+4. 
+IDE: Eclipse
+OS: El Capitan
+
+5.
+Who did what
+So I think I might just randomly divvy up the tasks, not based on like what we actually did, becuase we kind of just worked together to 
+solve the problems, but just so that we have something clear to turn in lol
+Feel free to add/subtract/whatever for the different tasks completed
+
+Ally:
+Typed up description and documentation
+Testing
+
+Jaitika:
+Code creation and alteration
