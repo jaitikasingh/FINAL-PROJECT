@@ -60,7 +60,7 @@ int main() //main class
     	is_in_genome=searchword(reads_to_be_tested.at (i), root);
     	if (is_in_genome){ //if it is in the genome it will write out the elements to be tested
     		x<<reads_to_be_tested [i] << ": Yes :  "; //yes if they get killed
-    		cout<<reads_to_be_tested [i] << ": Yes : ";
+    		cout<<reads_to_be_tested [i] << ": Yes : "; //will read through file and see if it passes the yeild of and will return yes or no
     	}
     	else {
     		x<<reads_to_be_tested [i] << ": No  :  "; //no if they are not killed
@@ -128,12 +128,12 @@ bool get_the_reads_from_file(char * my_file_name, vector<string> &reads)
         return false;
     }
 
-    char * word=new char [60]; //CP                             //this is a default, we'll be looking at words of size 10
+    char * word=new char [60]; //CP                             //this is a default, we'll be looking at words of size 30
 
     while(in.peek()!=EOF)
     {
         in.getline(word,60,'\n');   //CP
-        for(i=0; i<30; i++) {if(word[i]<97) word[i]+=32;}     //makes it lowercase  //CP -- YOU ONLY HAD IT LOOPING THROUGH 10
+        for(i=0; i<30; i++) {if(word[i]<97) word[i]+=32;}     //makes it so it will read size of 30
         reads.push_back(word);
     }
     in.clear(); in.close();
@@ -275,7 +275,7 @@ bool searchword (string word, myTreeNode *root) { //will search through the .txt
 				tempNode=tempNode->childA; //temp is equal to temp's childA
 			}
 
-			else if ( tempNode -> childA == NULL) {
+			else if ( tempNode -> childA == NULL) { //this statement will check if it passes the yeild of 10% of the sequence
 				if(count <= 3 && tempNode->childG!=NULL) {
 					tempNode=tempNode ->childG;
 					count++;
@@ -293,7 +293,7 @@ bool searchword (string word, myTreeNode *root) { //will search through the .txt
 				tempNode=tempNode->childT;
 			}
 	else if ( tempNode -> childT == NULL) {
-						if(count <= 3 && tempNode->childC!=NULL) {
+				if(count <= 3 && tempNode->childC!=NULL) { //doing the same thing for all the letters
 					tempNode=tempNode ->childC;
 					count++;
 					}
