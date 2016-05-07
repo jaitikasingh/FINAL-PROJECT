@@ -128,11 +128,11 @@ bool get_the_reads_from_file(char * my_file_name, vector<string> &reads)
         return false;
     }
 
-    char * word=new char [60]; //CP                             //this is a default, we'll be looking at words of size 30
+    char * word=new char [30]; //CP                             //this is a default, we'll be looking at words of size 30
 
     while(in.peek()!=EOF)
     {
-        in.getline(word,60,'\n');   //CP
+        in.getline(word,30,'\n');   //CP
         for(i=0; i<30; i++) {if(word[i]<97) word[i]+=32;}     //makes it so it will read size of 30
         reads.push_back(word);
     }
